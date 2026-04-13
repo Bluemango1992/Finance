@@ -1,0 +1,2 @@
+[console_scripts]
+alphavantage = alphavantage.cli:main
