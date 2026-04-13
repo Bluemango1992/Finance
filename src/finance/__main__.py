@@ -1,4 +1,4 @@
-from alphavantage.cli import main
+from finance.cli import main
 
 
 if __name__ == "__main__":

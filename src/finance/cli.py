@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from alphavantage.providers import fetch_alphavantage_overview, fetch_yfinance_info
+from finance.providers import fetch_alphavantage_overview, fetch_yfinance_info
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

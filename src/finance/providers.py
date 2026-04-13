@@ -3,7 +3,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from alphavantage.config import get_api_key
+from finance.config import get_api_key
 
 
 def fetch_alphavantage_overview(symbol: str) -> dict:

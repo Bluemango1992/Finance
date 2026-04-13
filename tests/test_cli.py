@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from alphavantage.cli import main, parse_args
+from finance.cli import main, parse_args
 
 
 def test_parse_args_defaults_to_alphavantage_ibm() -> None:
@@ -16,18 +16,18 @@ def test_parse_args_accepts_yfinance_provider() -> None:
     assert args.symbol == "MSFT"
 
 
-@patch("alphavantage.cli.fetch_alphavantage_overview", return_value={"Symbol": "IBM"})
+@patch("finance.cli.fetch_alphavantage_overview", return_value={"Symbol": "IBM"})
 def test_main_uses_alphavantage_by_default(mock_fetch, capsys) -> None:
-    with patch("sys.argv", ["alphavantage"]):
+    with patch("sys.argv", ["finance"]):
         main()
 
     assert json.loads(capsys.readouterr().out) == {"Symbol": "IBM"}
     mock_fetch.assert_called_once_with("IBM")
 
 
-@patch("alphavantage.cli.fetch_yfinance_info", return_value={"symbol": "MSFT"})
+@patch("finance.cli.fetch_yfinance_info", return_value={"symbol": "MSFT"})
 def test_main_uses_yfinance_when_requested(mock_fetch, capsys) -> None:
-    with patch("sys.argv", ["alphavantage", "--provider", "yfinance", "MSFT"]):
+    with patch("sys.argv", ["finance", "--provider", "yfinance", "MSFT"]):
         main()
 
     assert json.loads(capsys.readouterr().out) == {"symbol": "MSFT"}

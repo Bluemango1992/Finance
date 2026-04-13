@@ -1,6 +1,6 @@
 import pytest
 
-from alphavantage.config import get_api_key
+from finance.config import get_api_key
 
 
 def test_get_api_key_reads_environment(monkeypatch: pytest.MonkeyPatch) -> None:

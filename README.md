@@ -1,6 +1,6 @@
-# alphavantage
+# finance
 
-Minimal Python project scaffold for Alpha Vantage work.
+Minimal Python project scaffold for finance data work.
 
 ## Quick start
 
@@ -8,7 +8,7 @@ Minimal Python project scaffold for Alpha Vantage work.
 python3 -m venv .venv
 source .venv/bin/activate
 cp .env.example .env
-python -m alphavantage IBM
+python -m finance IBM
 ```
 
 Install the optional Yahoo Finance support when you need it:
@@ -30,11 +30,11 @@ ALPHAVANTAGE_API_KEY=your_api_key_here
 Fetch a company overview from Alpha Vantage:
 
 ```bash
-python -m alphavantage IBM
+python -m finance IBM
 ```
 
 Fetch a Yahoo Finance company info payload:
 
 ```bash
-python -m alphavantage --provider yfinance MSFT
+python -m finance --provider yfinance MSFT
 ```

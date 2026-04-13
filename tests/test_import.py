@@ -1,4 +1,4 @@
-from alphavantage import main
+from finance import main
 
 
 def test_main_is_callable() -> None:
