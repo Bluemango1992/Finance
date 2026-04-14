@@ -3,7 +3,7 @@ import json
 import sys
 
 from finance.db import run_query
-from finance.ingestion import ingest_spy_prices
+from finance.data.ingestion import ingest_spy_prices
 from finance.providers import fetch_alphavantage_overview, fetch_yfinance_info
 
 

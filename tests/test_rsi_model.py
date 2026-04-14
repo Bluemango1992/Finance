@@ -1,4 +1,4 @@
-from models.techical.rsi import calculate_rsi, rsi_signal
+from finance.models.technical.rsi import calculate_rsi, rsi_signal
 
 
 def test_calculate_rsi_output_shape_and_bounds() -> None:

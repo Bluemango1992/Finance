@@ -7,7 +7,7 @@
 ## Core Files
 - `src/finance/cli.py` - CLI entrypoints
 - `src/finance/db.py` - DuckDB schema/query/write helpers
-- `src/finance/ingestion.py` - SPY Yahoo -> `prices` pipeline
+- `src/finance/data/ingestion.py` - SPY Yahoo -> `prices` pipeline
 - `src/finance/providers.py` - data providers
 - `src/finance/viz/` - visualization module scaffold
 

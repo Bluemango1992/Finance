@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from models.techical.rsi import calculate_rsi, rsi_signal
+from finance.models.technical.rsi import calculate_rsi, rsi_signal
 
 
 def backtest_rsi_strategy(

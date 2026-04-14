@@ -57,6 +57,12 @@ Run SPY ingestion pipeline (Yahoo Finance -> DuckDB `prices` table):
 python -m finance --ingest-spy --duckdb-database data/prices.duckdb
 ```
 
+Fetch SPY last 10 years to a standalone file:
+
+```bash
+python scripts/get_spy_10y.py --output data/benchmarks/spy_10y.parquet
+```
+
 The command prints:
 
 - `rows_fetched`
@@ -79,6 +85,11 @@ Table: `prices`
 - `source VARCHAR NOT NULL`
 - `ingestion_ts TIMESTAMP NOT NULL` (UTC)
 - `PRIMARY KEY (asset_id, date)`
+
+Full multi-table schema is in: `src/finance/data/schema.sql` and now includes:
+- `income_statement_items`
+- `cash_flow_items`
+- `balance_sheet_items`
 
 ## Idempotency
 

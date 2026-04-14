@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 from finance.db import count_prices_rows
-from finance.ingestion import ingest_spy_prices, validate_prices_rows
+from finance.data.ingestion import ingest_spy_prices, validate_prices_rows
 
 
 def test_validate_prices_rows_drops_null_date_and_close() -> None:
@@ -53,11 +53,13 @@ def test_ingest_spy_prices_returns_stage_summary(monkeypatch, tmp_path) -> None:
     fake_transformed = [{"asset_id": "SPY", "date": "2024-01-02"}]
     fake_valid_rows = [{"asset_id": "SPY", "date": "2024-01-02"}]
 
-    monkeypatch.setattr("finance.ingestion.load_spy_history", lambda: fake_raw)
-    monkeypatch.setattr("finance.ingestion.transform_to_prices_rows", lambda _raw: fake_transformed)
-    monkeypatch.setattr("finance.ingestion.validate_prices_rows", lambda _rows: (fake_valid_rows, 1))
+    monkeypatch.setattr("finance.data.ingestion.load_spy_history", lambda: fake_raw)
     monkeypatch.setattr(
-        "finance.ingestion.insert_prices_rows",
+        "finance.data.ingestion.transform_to_prices_rows", lambda _raw: fake_transformed
+    )
+    monkeypatch.setattr("finance.data.ingestion.validate_prices_rows", lambda _rows: (fake_valid_rows, 1))
+    monkeypatch.setattr(
+        "finance.data.ingestion.insert_prices_rows",
         lambda _database, _rows: {"inserted": 1, "duplicates": 0},
     )
 
@@ -102,8 +104,8 @@ def test_ingest_spy_prices_is_idempotent(monkeypatch, tmp_path) -> None:
             },
         ]
 
-    monkeypatch.setattr("finance.ingestion.load_spy_history", fake_raw)
-    monkeypatch.setattr("finance.ingestion.transform_to_prices_rows", fake_transform)
+    monkeypatch.setattr("finance.data.ingestion.load_spy_history", fake_raw)
+    monkeypatch.setattr("finance.data.ingestion.transform_to_prices_rows", fake_transform)
 
     database = str(tmp_path / "prices.duckdb")
     first = ingest_spy_prices(database)

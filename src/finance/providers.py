@@ -43,7 +43,7 @@ def fetch_yfinance_info(symbol: str) -> dict:
         raise RuntimeError(f"Yahoo Finance request failed: {exc}") from exc
 
 
-def fetch_yfinance_history(symbol: str):
+def fetch_yfinance_history(symbol: str, period: str = "max"):
     try:
         import yfinance as yf
     except ImportError as exc:
@@ -52,7 +52,7 @@ def fetch_yfinance_history(symbol: str):
         ) from exc
 
     try:
-        return yf.Ticker(symbol).history(period="max", auto_adjust=False)
+        return yf.Ticker(symbol).history(period=period, auto_adjust=False)
     except Exception as exc:
         if "429" in str(exc) or "Too Many Requests" in str(exc):
             raise RuntimeError(
