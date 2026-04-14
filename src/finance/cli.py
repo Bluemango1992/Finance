@@ -3,6 +3,7 @@ import json
 import sys
 
 from finance.db import run_query
+from finance.ingestion import ingest_spy_prices
 from finance.providers import fetch_alphavantage_overview, fetch_yfinance_info
 
 
@@ -33,11 +34,30 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=":memory:",
         help="DuckDB database path. ':memory:' keeps everything in-memory.",
     )
+    parser.add_argument(
+        "--ingest-spy",
+        action="store_true",
+        help="Run SPY Yahoo Finance ingestion pipeline into DuckDB.",
+    )
     return parser.parse_args(argv)
 
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
+    if args.ingest_spy:
+        try:
+            summary = ingest_spy_prices(database=args.duckdb_database)
+        except RuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+
+        if summary["rows_invalid"] > 0:
+            print(f"Invalid rows skipped: {summary['rows_invalid']}", file=sys.stderr)
+        if summary["rows_duplicates"] > 0:
+            print(f"Duplicate rows skipped: {summary['rows_duplicates']}", file=sys.stderr)
+        print(json.dumps(summary, indent=2))
+        return
+
     if args.endpoint == "duckdb":
         try:
             data = run_query(args.sql, database=args.duckdb_database)

@@ -7,6 +7,7 @@ from finance.cli import main, parse_args
 def test_parse_args_defaults_to_alphavantage_ibm() -> None:
     args = parse_args([])
     assert args.endpoint == "api"
+    assert args.ingest_spy is False
     assert args.provider == "alphavantage"
     assert args.symbol == "IBM"
 
@@ -24,6 +25,24 @@ def test_main_uses_duckdb_endpoint_when_requested(mock_query, capsys) -> None:
 
     assert json.loads(capsys.readouterr().out) == [{"ok": 1}]
     mock_query.assert_called_once_with("select 1 as ok", database=":memory:")
+
+
+@patch(
+    "finance.cli.ingest_spy_prices",
+    return_value={
+        "rows_fetched": 10,
+        "rows_valid": 10,
+        "rows_invalid": 0,
+        "rows_inserted": 10,
+        "rows_duplicates": 0,
+    },
+)
+def test_main_runs_spy_ingestion(mock_ingest, capsys) -> None:
+    with patch("sys.argv", ["finance", "--ingest-spy", "--duckdb-database", "data/prices.duckdb"]):
+        main()
+
+    assert json.loads(capsys.readouterr().out)["rows_inserted"] == 10
+    mock_ingest.assert_called_once_with(database="data/prices.duckdb")
 
 
 @patch("finance.cli.fetch_alphavantage_overview", return_value={"Symbol": "IBM"})

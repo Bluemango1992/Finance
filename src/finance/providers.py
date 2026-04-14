@@ -41,3 +41,21 @@ def fetch_yfinance_info(symbol: str) -> dict:
                 "Yahoo Finance rate limited the request (HTTP 429). Try again later."
             ) from exc
         raise RuntimeError(f"Yahoo Finance request failed: {exc}") from exc
+
+
+def fetch_yfinance_history(symbol: str):
+    try:
+        import yfinance as yf
+    except ImportError as exc:
+        raise RuntimeError(
+            "yfinance is not installed. Run: pip install -e '.[yfinance]'"
+        ) from exc
+
+    try:
+        return yf.Ticker(symbol).history(period="max", auto_adjust=False)
+    except Exception as exc:
+        if "429" in str(exc) or "Too Many Requests" in str(exc):
+            raise RuntimeError(
+                "Yahoo Finance rate limited the request (HTTP 429). Try again later."
+            ) from exc
+        raise RuntimeError(f"Yahoo Finance history request failed: {exc}") from exc
