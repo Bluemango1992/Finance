@@ -21,6 +21,11 @@ yfinance = [
 duckdb = [
     "duckdb>=1.1",
 ]
+dimensional = [
+    "numpy>=2.0",
+    "scikit-learn>=1.5",
+    "umap-learn>=0.5",
+]
 
 [project.scripts]
 finance = "finance.cli:main"

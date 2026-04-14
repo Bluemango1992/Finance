@@ -1,122 +1,105 @@
 # finance
 
-Minimal Python project scaffold for finance data work.
+Finance research stack focused on medium/long-horizon investing:
+ingest data, transform it, analyze it, and support portfolio decisions.
 
-## Quick start
+## Scope
+- Local-first workflows
+- DuckDB as primary research database
+- Modular code for data, models, risk, portfolio, and visualization
+- No execution/vendor routing layer yet
 
+## Setup
+
+### 1) Create environment
 ```bash
-python3 -m venv .venv
+python -m venv .venv
+```
+
+Windows PowerShell:
+```bash
+.\.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+```bash
 source .venv/bin/activate
+```
+
+### 2) Install dependencies
+```bash
+pip install -e ".[duckdb,yfinance]"
+```
+
+### 3) Configure environment
+```bash
 cp .env.example .env
-python -m finance IBM
 ```
 
-Install the optional Yahoo Finance support when you need it:
-
-```bash
-pip install -e ".[yfinance]"
-```
-
-Install DuckDB support:
-
-```bash
-pip install -e ".[duckdb]"
-```
-
-## Environment
-
-Set your Alpha Vantage API key in `.env`:
-
+Set:
 ```bash
 ALPHAVANTAGE_API_KEY=your_api_key_here
 ```
 
-## Usage
+## Core Commands
 
-Fetch a company overview from Alpha Vantage:
-
+Run DuckDB SQL:
 ```bash
-python -m finance IBM
+python -m finance --endpoint duckdb --duckdb-database data/prices.duckdb --sql "select 1 as ok"
 ```
 
-Fetch a Yahoo Finance company info payload:
-
-```bash
-python -m finance --provider yfinance MSFT
-```
-
-Run local DuckDB SQL:
-
-```bash
-python -m finance --endpoint duckdb --sql "select 1 as ok"
-```
-
-Run SPY ingestion pipeline (Yahoo Finance -> DuckDB `prices` table):
-
+Ingest SPY prices into DuckDB:
 ```bash
 python -m finance --ingest-spy --duckdb-database data/prices.duckdb
 ```
 
-Fetch SPY last 10 years to a standalone file:
-
+Fetch standalone SPY 10y benchmark file:
 ```bash
 python scripts/get_spy_10y.py --output data/benchmarks/spy_10y.parquet
 ```
 
-The command prints:
+## Data Model
 
-- `rows_fetched`
-- `rows_valid`
-- `rows_invalid`
-- `rows_inserted`
-- `rows_duplicates`
-
-## Canonical Schema
-
-Table: `prices`
-
+Canonical `prices` table:
 - `asset_id VARCHAR NOT NULL`
 - `date DATE NOT NULL`
 - `open DOUBLE`
 - `high DOUBLE`
 - `low DOUBLE`
-- `close DOUBLE`
+- `close DOUBLE NOT NULL`
 - `volume BIGINT`
 - `source VARCHAR NOT NULL`
 - `ingestion_ts TIMESTAMP NOT NULL` (UTC)
 - `PRIMARY KEY (asset_id, date)`
 
-Full multi-table schema is in: `src/finance/data/schema.sql` and now includes:
-- `income_statement_items`
-- `cash_flow_items`
-- `balance_sheet_items`
+Full schema lives in:
+- `src/finance/data/schema.sql`
 
-## Idempotency
+Includes:
+- market data tables (`assets`, `prices`, `features_technical`)
+- workflow tables (`runs`, `signals`, `portfolio_weights`, `backtest_daily`)
+- fundamentals tables (`income_statement_items`, `cash_flow_items`, `balance_sheet_items`)
 
-Duplicate definition: same (`asset_id`, `date`).
+## Reliability Rules
+- Idempotent inserts by `(asset_id, date)` for prices
+- Duplicates are skipped, not overwritten
+- Large datasets should use projection/chunking and avoid full-memory duplication
+- Do not commit local data files; `data/` is ignored
 
-Insert policy:
-
-- existing rows are kept
-- incoming duplicates are skipped (`ON CONFLICT DO NOTHING`)
-
-You can run the ingestion command repeatedly; duplicates are skipped and logged in the summary.
-
-## Sanity Queries
-
-Check duplicates:
-
-```sql
-select asset_id, date, count(*) as n
-from prices
-group by 1, 2
-having count(*) > 1;
-```
-
-Check non-negative price/volume fields:
-
-```sql
-select count(*) as bad_rows
-from prices
-where open < 0 or high < 0 or low < 0 or close < 0 or volume < 0;
+## Project Layout
+```text
+src/finance/
+  cli.py
+  db.py
+  providers.py
+  data/
+    ingestion.py
+    schema.sql
+  models/
+    technical/
+  features/
+  portfolio/
+  risk/
+  backtest/
+  viz/
 ```
