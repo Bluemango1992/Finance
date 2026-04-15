@@ -6,3 +6,10 @@ __pycache__/
 *.pyc
 *.egg-info/
 data/
+.cache/
+.jupyter_config/
+.jupyter_runtime/
+notebooks/*.executed.ipynb
+notebooks/.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+artifacts/
