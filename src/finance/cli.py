@@ -1,10 +1,14 @@
 import argparse
+from dataclasses import asdict
 import json
 import sys
 
 from finance.config import build_settings
 from finance.db import run_query
 from finance.providers import fetch_alphavantage_overview, fetch_yfinance_info
+from finance.scraper.ftse250 import refresh_ftse250_data_safe
+from finance.scraper.nikkei225 import refresh_nikkei225_data_safe
+from finance.scraper.sp500 import refresh_sp500_data_safe
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -39,11 +43,71 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Optional API key override. If omitted, ALPHAVANTAGE_API_KEY is used.",
     )
+    parser.add_argument(
+        "--refresh-sp500",
+        action="store_true",
+        help="Refresh the local S&P 500 constituents JSON if today's snapshot is missing.",
+    )
+    parser.add_argument(
+        "--sp500-output",
+        default="data/sp500_constituents.json",
+        help="Path to the root-level JSON file that stores S&P 500 constituents.",
+    )
+    parser.add_argument(
+        "--refresh-ftse250",
+        action="store_true",
+        help="Refresh the local FTSE 250 constituents JSON if today's snapshot is missing.",
+    )
+    parser.add_argument(
+        "--ftse250-output",
+        default="data/ftse250_constituents.json",
+        help="Path to the root-level JSON file that stores FTSE 250 constituents.",
+    )
+    parser.add_argument(
+        "--refresh-nikkei225",
+        action="store_true",
+        help="Refresh the local Nikkei 225 components JSON if today's snapshot is missing.",
+    )
+    parser.add_argument(
+        "--nikkei225-output",
+        default="data/nikkei225_components.json",
+        help="Path to the root-level JSON file that stores Nikkei 225 components.",
+    )
     return parser.parse_args(argv)
 
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
+    if args.refresh_nikkei225:
+        try:
+            summary = refresh_nikkei225_data_safe(path=args.nikkei225_output)
+        except RuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+
+        print(json.dumps(asdict(summary), indent=2))
+        return
+
+    if args.refresh_ftse250:
+        try:
+            summary = refresh_ftse250_data_safe(path=args.ftse250_output)
+        except RuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+
+        print(json.dumps(asdict(summary), indent=2))
+        return
+
+    if args.refresh_sp500:
+        try:
+            summary = refresh_sp500_data_safe(path=args.sp500_output)
+        except RuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+
+        print(json.dumps(asdict(summary), indent=2))
+        return
+
     settings = build_settings(
         endpoint=args.endpoint,
         provider=args.provider,
