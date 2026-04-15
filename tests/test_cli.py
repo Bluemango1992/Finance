@@ -5,15 +5,14 @@ from finance.cli import main, parse_args
 from finance.scraper.sp500 import RefreshSummary
 
 
-def test_parse_args_defaults_to_alphavantage_ibm() -> None:
+def test_parse_args_defaults_to_api_without_symbol() -> None:
     args = parse_args([])
-    assert args.endpoint == "api"
-    assert args.ingest_spy is False
+    assert args.endpoint is None
     assert args.refresh_ftse250 is False
     assert args.refresh_nikkei225 is False
     assert args.refresh_sp500 is False
-    assert args.provider == "alphavantage"
-    assert args.symbol == "IBM"
+    assert args.provider is None
+    assert args.symbol is None
 
 
 def test_parse_args_accepts_yfinance_provider() -> None:
@@ -24,38 +23,22 @@ def test_parse_args_accepts_yfinance_provider() -> None:
 
 @patch("finance.cli.run_query", return_value=[{"ok": 1}])
 def test_main_uses_duckdb_endpoint_when_requested(mock_query, capsys) -> None:
-    with patch("sys.argv", ["finance", "--endpoint", "duckdb"]):
+    with patch("sys.argv", ["finance", "--endpoint", "duckdb", "--sql", "select 1 as ok"]):
         main()
 
     assert json.loads(capsys.readouterr().out) == [{"ok": 1}]
     mock_query.assert_called_once_with("select 1 as ok", database=":memory:")
 
 
-@patch(
-    "finance.cli.ingest_spy_prices",
-    return_value={
-        "rows_fetched": 10,
-        "rows_valid": 10,
-        "rows_invalid": 0,
-        "rows_inserted": 10,
-        "rows_duplicates": 0,
-    },
-)
-def test_main_runs_spy_ingestion(mock_ingest, capsys) -> None:
-    with patch("sys.argv", ["finance", "--ingest-spy", "--duckdb-database", "data/prices.duckdb"]):
-        main()
-
-    assert json.loads(capsys.readouterr().out)["rows_inserted"] == 10
-    mock_ingest.assert_called_once_with(database="data/prices.duckdb")
-
-
 @patch("finance.cli.fetch_alphavantage_overview", return_value={"Symbol": "IBM"})
-def test_main_uses_alphavantage_by_default(mock_fetch, capsys) -> None:
-    with patch("sys.argv", ["finance"]):
+def test_main_uses_alphavantage_by_default(mock_fetch, capsys, monkeypatch, tmp_path) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("ALPHAVANTAGE_API_KEY", raising=False)
+    with patch("sys.argv", ["finance", "IBM"]):
         main()
 
     assert json.loads(capsys.readouterr().out) == {"Symbol": "IBM"}
-    mock_fetch.assert_called_once_with("IBM")
+    mock_fetch.assert_called_once_with("IBM", api_key=None)
 
 
 @patch("finance.cli.fetch_yfinance_info", return_value={"symbol": "MSFT"})

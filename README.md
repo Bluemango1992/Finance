@@ -86,8 +86,18 @@ Includes:
 - Large datasets should use projection/chunking and avoid full-memory duplication
 - Do not commit local data files; `data/` is ignored
 
+## Structure Rules
+- All importable Python code lives under `src/`.
+- `src/finance/` is the only package root for this repository.
+- Repository root directories are for assets and workflows only (`data/`, `notebooks/`, `scripts/`, `artifacts/`), not Python packages.
+- Avoid root folder names that collide with package modules (for example, no root `models/`).
+
 ## Project Layout
 ```text
+artifacts/                  # optional local model/checkpoint outputs (ignored)
+data/                       # local DuckDB/data/cache (ignored)
+notebooks/                  # research notebooks
+scripts/                    # utility scripts
 src/finance/
   cli.py
   db.py
@@ -96,10 +106,13 @@ src/finance/
     ingestion.py
     schema.sql
   models/
+    dimensional/
+    fundamental/
     technical/
   features/
   portfolio/
   risk/
   backtest/
   viz/
+tests/
 ```
