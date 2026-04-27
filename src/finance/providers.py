@@ -54,13 +54,13 @@ def _normalize_mapping(payload: Mapping[Any, Any]) -> dict[str, str | int | floa
     return normalized
 
 
-def fetch_alphavantage_overview(
-    symbol: str, api_key: str | None = None
-) -> dict[str, str | int | float | bool | None]:
+def _fetch_alphavantage_mapping(
+    *, function_name: str, symbol: str, api_key: str | None = None
+) -> Mapping[Any, Any]:
     settings = build_settings(alphavantage_api_key=api_key)
     query = urlencode(
         {
-            "function": "OVERVIEW",
+            "function": function_name,
             "symbol": symbol,
             "apikey": get_required_alphavantage_api_key(settings),
         }
@@ -72,7 +72,7 @@ def fetch_alphavantage_overview(
             payload = json.load(response)
             if not isinstance(payload, Mapping):
                 raise RuntimeError("Alpha Vantage response was not a JSON object.")
-            return _normalize_mapping(payload)
+            return payload
     except HTTPError as exc:
         if _is_rate_limited_error(exc):
             raise RuntimeError(
@@ -81,6 +81,40 @@ def fetch_alphavantage_overview(
         raise RuntimeError(f"Alpha Vantage request failed with HTTP {exc.code}") from exc
     except URLError as exc:
         raise RuntimeError(f"Alpha Vantage request failed: {exc.reason}") from exc
+
+
+def fetch_alphavantage_overview(
+    symbol: str, api_key: str | None = None
+) -> dict[str, str | int | float | bool | None]:
+    payload = _fetch_alphavantage_mapping(function_name="OVERVIEW", symbol=symbol, api_key=api_key)
+    return _normalize_mapping(payload)
+
+
+def fetch_alphavantage_income_statement(symbol: str, api_key: str | None = None) -> dict[str, Any]:
+    payload = _fetch_alphavantage_mapping(
+        function_name="INCOME_STATEMENT",
+        symbol=symbol,
+        api_key=api_key,
+    )
+    return dict(payload)
+
+
+def fetch_alphavantage_cash_flow(symbol: str, api_key: str | None = None) -> dict[str, Any]:
+    payload = _fetch_alphavantage_mapping(
+        function_name="CASH_FLOW",
+        symbol=symbol,
+        api_key=api_key,
+    )
+    return dict(payload)
+
+
+def fetch_alphavantage_balance_sheet(symbol: str, api_key: str | None = None) -> dict[str, Any]:
+    payload = _fetch_alphavantage_mapping(
+        function_name="BALANCE_SHEET",
+        symbol=symbol,
+        api_key=api_key,
+    )
+    return dict(payload)
 
 
 def fetch_yfinance_info(symbol: str) -> dict[str, str | int | float | bool | None]:

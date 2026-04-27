@@ -48,9 +48,24 @@ Run DuckDB SQL:
 python -m finance --endpoint duckdb --duckdb-database data/prices.duckdb --sql "select 1 as ok"
 ```
 
-Ingest SPY prices into DuckDB:
+Ingest historical income statements into DuckDB from Alpha Vantage:
 ```bash
-python -m finance --ingest-spy --duckdb-database data/prices.duckdb
+python -m finance --ingest-income-statement --duckdb-database data/fundamentals.duckdb MSFT
+```
+
+Ingest historical cash flow statements into DuckDB from Alpha Vantage:
+```bash
+python -m finance --ingest-cash-flow --duckdb-database data/fundamentals.duckdb MSFT
+```
+
+Ingest historical balance sheets into DuckDB from Alpha Vantage:
+```bash
+python -m finance --ingest-balance-sheet --duckdb-database data/fundamentals.duckdb MSFT
+```
+
+Migrate full S&P 500 fundamentals with resume/retry tracking:
+```bash
+python -m finance --migrate-sp500-fundamentals --duckdb-database data/fundamentals.duckdb --sp500-input data/sp500_constituents.json --max-requests 5
 ```
 
 Fetch standalone SPY 10y benchmark file:
@@ -60,30 +75,16 @@ python scripts/get_spy_10y.py --output data/benchmarks/spy_10y.parquet
 
 ## Data Model
 
-Canonical `prices` table:
-- `asset_id VARCHAR NOT NULL`
-- `date DATE NOT NULL`
-- `open DOUBLE`
-- `high DOUBLE`
-- `low DOUBLE`
-- `close DOUBLE NOT NULL`
-- `volume BIGINT`
-- `source VARCHAR NOT NULL`
-- `ingestion_ts TIMESTAMP NOT NULL` (UTC)
-- `PRIMARY KEY (asset_id, date)`
-
 Full schema lives in:
 - `src/finance/data/schema.sql`
 
 Includes:
-- market data tables (`assets`, `prices`, `features_technical`)
-- workflow tables (`runs`, `signals`, `portfolio_weights`, `backtest_daily`)
-- fundamentals tables (`income_statement_items`, `cash_flow_items`, `balance_sheet_items`)
+- fundamentals tables (`income_statements`, `cash_flow_statements`, `balance_sheets`)
+- migration tracking table (`fundamental_migration_progress`)
 
 ## Reliability Rules
-- Idempotent inserts by `(asset_id, date)` for prices
-- Duplicates are skipped, not overwritten
-- Large datasets should use projection/chunking and avoid full-memory duplication
+- Fundamental statement upserts are idempotent by `(symbol, period_type, fiscal_date_ending)`
+- Migration progress is resumable by `(symbol, dataset)` with retry scheduling
 - Do not commit local data files; `data/` is ignored
 
 ## Structure Rules
