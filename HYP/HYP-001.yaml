@@ -1,0 +1,45 @@
+id: HYP-001
+title: Yen depreciation and Nikkei relationship
+
+hypothesis: >
+  A depreciation of the Japanese yen (JPY/USD decreases)
+  is associated with an increase in the Nikkei 225 index.
+
+type: correlation  # correlation | causal | directional
+
+variables:
+  independent:
+    name: JPY/USD exchange rate
+    expected_direction: decrease (yen weakening)
+  dependent:
+    name: Nikkei 225 index
+    expected_direction: increase
+
+mechanism: >
+  A weaker yen improves export competitiveness of Japanese firms,
+  increasing earnings and equity valuations.
+
+alternative_explanations:
+  - Global interest rate differentials drive both FX and equities
+  - Risk-on / risk-off sentiment affects both simultaneously
+  - Capital flows into equities influence currency demand
+
+regime_conditions:
+  - Stronger during periods of monetary easing (e.g., BOJ QE)
+  - May break during global crises (safe-haven flows into yen)
+
+test_plan:
+  method: rolling_correlation
+  data:
+    - JPY/USD daily prices
+    - Nikkei 225 daily prices
+  metrics:
+    - correlation coefficient (1Y rolling)
+    - regression beta
+
+results: null
+
+confidence: low
+
+notes: >
+  Initial observation from long-term chart. Needs regime segmentation.

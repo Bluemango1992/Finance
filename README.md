@@ -31,6 +31,11 @@ source .venv/bin/activate
 pip install -e ".[duckdb,yfinance]"
 ```
 
+For notebooks and lightweight interactive visualisation:
+```bash
+pip install -e ".[duckdb,yfinance,viz]"
+```
+
 ### 3) Configure environment
 ```bash
 cp .env.example .env
@@ -56,6 +61,24 @@ python -m finance --ingest-spy --duckdb-database data/prices.duckdb
 Fetch standalone SPY 10y benchmark file:
 ```bash
 python scripts/get_spy_10y.py --output data/benchmarks/spy_10y.parquet
+```
+
+Fetch S&P 500 index metadata directly from Yahoo Finance:
+```bash
+python -m finance '^GSPC' --provider yfinance
+```
+
+Build a structured S&P 500 fundamentals dataset with yfinance:
+```bash
+PYTHONPATH=src python equity_quality_scraper.py \
+  --flat-output artifacts/sp500_fundamentals_flat.parquet \
+  --long-output artifacts/sp500_fundamentals_long.parquet \
+  --summary-output artifacts/sp500_fundamentals_summary.json
+```
+
+Or via the package CLI:
+```bash
+python -m finance --build-sp500-fundamentals
 ```
 
 ## Data Model

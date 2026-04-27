@@ -25,12 +25,14 @@ def test_build_settings_uses_defaults_when_no_overrides(
     monkeypatch.delenv("FINANCE_DUCKDB_DATABASE", raising=False)
     monkeypatch.delenv("FINANCE_SQL", raising=False)
     monkeypatch.delenv("ALPHAVANTAGE_API_KEY", raising=False)
+    monkeypatch.delenv("FRED_API_KEY", raising=False)
     settings = build_settings()
     assert settings.endpoint == "api"
     assert settings.provider == "alphavantage"
     assert settings.duckdb_database == ":memory:"
     assert settings.sql is None
     assert settings.alphavantage_api_key is None
+    assert settings.fred_api_key is None
 
 
 def test_build_settings_cli_overrides_env(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -39,15 +41,25 @@ def test_build_settings_cli_overrides_env(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setenv("FINANCE_DUCKDB_DATABASE", "env.duckdb")
     monkeypatch.setenv("FINANCE_SQL", "select 'env'")
     monkeypatch.setenv("ALPHAVANTAGE_API_KEY", "env-key")
+    monkeypatch.setenv("FRED_API_KEY", "env-fred-key")
     settings = build_settings(
         endpoint="duckdb",
         provider="yfinance",
         duckdb_database="cli.duckdb",
         sql="select 'cli'",
         alphavantage_api_key="cli-key",
+        fred_api_key="cli-fred-key",
     )
     assert settings.endpoint == "duckdb"
     assert settings.provider == "yfinance"
     assert settings.duckdb_database == "cli.duckdb"
     assert settings.sql == "select 'cli'"
     assert settings.alphavantage_api_key == "cli-key"
+    assert settings.fred_api_key == "cli-fred-key"
+
+
+def test_build_settings_accepts_fred_provider(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("FINANCE_PROVIDER", raising=False)
+    settings = build_settings(provider="fred")
+    assert settings.provider == "fred"

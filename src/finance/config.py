@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 Endpoint = Literal["api", "duckdb"]
-Provider = Literal["alphavantage", "yfinance"]
+Provider = Literal["alphavantage", "yfinance", "fred"]
 
 DEFAULT_ENDPOINT: Endpoint = "api"
 DEFAULT_PROVIDER: Provider = "alphavantage"
@@ -31,6 +31,7 @@ class RuntimeSettings:
     duckdb_database: str
     sql: str | None
     alphavantage_api_key: str | None
+    fred_api_key: str | None
 
 
 def build_settings(
@@ -40,6 +41,7 @@ def build_settings(
     duckdb_database: str | None = None,
     sql: str | None = None,
     alphavantage_api_key: str | None = None,
+    fred_api_key: str | None = None,
 ) -> RuntimeSettings:
     load_env_file()
     resolved_endpoint = endpoint or os.getenv("FINANCE_ENDPOINT") or DEFAULT_ENDPOINT
@@ -49,10 +51,11 @@ def build_settings(
     )
     resolved_sql = sql or os.getenv("FINANCE_SQL")
     resolved_api_key = alphavantage_api_key or os.getenv("ALPHAVANTAGE_API_KEY")
+    resolved_fred_api_key = fred_api_key or os.getenv("FRED_API_KEY")
 
     if resolved_endpoint not in {"api", "duckdb"}:
         raise RuntimeError(f"Invalid endpoint: {resolved_endpoint}")
-    if resolved_provider not in {"alphavantage", "yfinance"}:
+    if resolved_provider not in {"alphavantage", "yfinance", "fred"}:
         raise RuntimeError(f"Invalid provider: {resolved_provider}")
 
     return RuntimeSettings(
@@ -61,6 +64,7 @@ def build_settings(
         duckdb_database=resolved_duckdb_database,
         sql=resolved_sql,
         alphavantage_api_key=resolved_api_key,
+        fred_api_key=resolved_fred_api_key,
     )
 
 

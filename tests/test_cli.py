@@ -21,6 +21,12 @@ def test_parse_args_accepts_yfinance_provider() -> None:
     assert args.symbol == "MSFT"
 
 
+def test_parse_args_accepts_sp500_fundamentals_switch() -> None:
+    args = parse_args(["--build-sp500-fundamentals"])
+    assert args.build_sp500_fundamentals is True
+    assert args.fundamentals_flat_output == "artifacts/sp500_fundamentals_flat.parquet"
+
+
 @patch("finance.cli.run_query", return_value=[{"ok": 1}])
 def test_main_uses_duckdb_endpoint_when_requested(mock_query, capsys) -> None:
     with patch("sys.argv", ["finance", "--endpoint", "duckdb", "--sql", "select 1 as ok"]):
@@ -99,3 +105,18 @@ def test_main_refreshes_nikkei225_snapshot(mock_refresh, capsys) -> None:
 
     assert json.loads(capsys.readouterr().out)["output_path"] == "data/nikkei225_components.json"
     mock_refresh.assert_called_once_with(path="data/nikkei225_components.json")
+
+
+@patch(
+    "finance.cli.run_and_persist_sp500_fundamentals",
+    return_value={"flat_output": "artifacts/sp500_fundamentals_flat.parquet"},
+)
+def test_main_builds_sp500_fundamentals_dataset(mock_run, capsys) -> None:
+    with patch("sys.argv", ["finance", "--build-sp500-fundamentals"]):
+        main()
+
+    assert json.loads(capsys.readouterr().out) == {
+        "flat_output": "artifacts/sp500_fundamentals_flat.parquet"
+    }
+    config = mock_run.call_args.args[0]
+    assert config.output_flat == "artifacts/sp500_fundamentals_flat.parquet"

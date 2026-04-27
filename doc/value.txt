@@ -1,0 +1,104 @@
+Here is the TL;DR of the other "gold standard" finance models:
+
+  - Comps (Comparables): Valuing a company by looking at what similar companies
+    are worth (like pricing a house based on the house next door).
+  - LBO (Leveraged Buyout): The model for buying a company using mostly borrowed
+    money (like flipping a house using a mortgage).
+  - MPT (Modern Portfolio Theory): The mathematical proof for "don't put all
+    your eggs in one basket." It mixes different stocks/bonds to lower your risk
+    without killing your returns.
+  - Black-Scholes: A hardcore math formula used by Wall Street to price stock
+    options (betting on future stock prices).
+  - DuPont Analysis: An X-ray for profits. It breaks down a company's return on
+    equity to see if they are actually a good business, or just masking bad
+    performance with too much debt.
+
+The Cheat Sheet:
+
+  - DCF & Comps = How much is this company worth?
+  - CAPM & WACC = What is our target profit / cost of money?
+  - LBO = How much debt can we use to buy this company?
+  - MPT = How do I build a safe investment portfolio?
+
+Knowing that all these models are flawed, the smartest investors in the
+world—like Warren Buffett and Charlie Munger—don't throw the math in the
+trash. But they also don't trust complex, 50-tab spreadsheets.
+
+Their philosophy is simple: "It is better to be roughly right than precisely
+wrong."
+
+If I were building an investment strategy knowing the flaws of Wall Street's
+"gold standards," here is the arsenal of models and mental frameworks I would
+actually use:
+
+1. The "Reverse DCF" (Expectations Investing)
+
+  - Fixes the flaw of: Traditional DCF (guessing the future).
+  - How to use it: Instead of guessing a company’s future growth to figure out
+    what the stock price should be, you do the exact opposite. You take the
+    current stock price and run the math backward to figure out what growth the
+    market is expecting.
+  - Why it works: You don't have to be a psychic. If a stock is trading at $100,
+    the Reverse DCF might tell you: "For this company to be worth $100, it must
+    grow sales by 25% every year for a decade." Then you just apply common sense
+    and ask: "Is that actually possible?" If the answer is no, you don't buy the
+    stock.
+
+2. Free Cash Flow (FCF) Yield
+
+  - Fixes the flaw of: DuPont Analysis and Comps (trusting accounting tricks).
+  - How to use it: You ignore "Net Income" or "Earnings" because accountants can
+    legally manipulate those numbers. Instead, you look purely at the company's
+    bank account: How much hard, cold cash did the business generate after
+    paying for all its expenses and factory upgrades? Divide that cash by the
+    price of the company.
+  - Why it works: You can fake profits on a tax return, but you cannot fake cash
+    in the bank. If a company has a high FCF Yield (meaning it spits out a ton
+    of actual cash compared to its price), it is usually a highly resilient
+    business.
+
+3. Triangulation (The "Football Field" Chart)
+
+  - Fixes the flaw of: Relying on any single model.
+  - How to use it: You run a DCF, you run a Comps model, and you look at what
+    similar companies were bought for in the past. You chart them all on a graph
+    (Wall Street calls this a "Football Field" chart because the bars look like
+    yard lines).
+  - Why it works: You look for the overlap. If your DCF says the company is
+    worth 40-50, and Comps says 45-55, your "truth" is probably somewhere in
+    that overlapping 45-50 window. It prevents you from being blinded by the
+    bias of one single equation.
+
+4. The Pre-Mortem (Stress Testing)
+
+  - Fixes the flaw of: LBOs and MPT (the "everything will go perfect" delusion).
+  - How to use it: Before you invest a dollar, you assume it is 5 years in the
+    future and the company has gone totally bankrupt. You ask: "What killed it?"
+    Did interest rates spike? Did a new competitor invent better tech? Did a
+    pandemic hit? Then, you plug those nightmare scenarios into your
+    spreadsheet.
+  - Why it works: Wall Street builds "Base Cases" (what they hope happens).
+    Survivors build "Worst Cases." If a company can survive your nightmare
+    spreadsheet, it’s probably a safe investment.
+
+5. The Ultimate Meta-Model: Margin of Safety
+
+  - Fixes the flaw of: Human unpredictability and Black Swans (Black-Scholes).
+  - How to use it: This was invented by Benjamin Graham, the godfather of value
+    investing. Once you use your models to figure out a company is worth $100...
+    you refuse to pay more than $60 for it.
+  - Why it works: That 40% discount is your "Margin of Safety." It acts as a
+    shock absorber. If your DCF math was wrong, or the CEO makes a stupid
+    decision, or the economy crashes, you bought it so cheap that you still
+    won't lose your shirt.
+
+The Takeaway
+
+Amateurs use financial models as crystal balls to predict exactly what a stock
+will do.
+
+Professionals use financial models as bullshit detectors. They use Reverse DCFs,
+Cash Flow tracking, and Margin of Safety to figure out when the market is lying,
+when a CEO is too optimistic, and when a stock is drastically overpriced.
+
+

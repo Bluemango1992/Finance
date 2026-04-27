@@ -1,6 +1,9 @@
 import pandas as pd
 
-from finance.backtest.regime_filtered import backtest_regime_filtered_long
+from finance.backtest.regime_filtered import (
+    backtest_regime_filtered_long,
+    backtest_regime_weighted_long,
+)
 
 
 def test_regime_filtered_backtest_outputs_comparable_summary() -> None:
@@ -33,3 +36,17 @@ def test_regime_filtered_backtest_applies_lag_no_lookahead() -> None:
     # With lag=1, warmup month is dropped and month 2 is first tradable point.
     assert positive_mask.index[0] == idx[1]
     assert bool(positive_mask.iloc[0]) is True
+
+
+def test_regime_weighted_backtest_builds_summary_from_rows() -> None:
+    idx = pd.date_range("2021-01-31", periods=4, freq="ME")
+    monthly_returns = pd.Series([0.10, 0.20, -0.10, 0.05], index=idx)
+    regimes = pd.Series(["positive", "negative", "neutral", "neutral"], index=idx)
+
+    result = backtest_regime_weighted_long(monthly_returns, regimes, lag_periods=1)
+    summary = result["summary"]
+
+    assert list(summary.index) == ["weighted_by_regime", "always_long"]
+    assert {"cumulative_return", "months_invested", "mean_return", "volatility"}.issubset(
+        summary.columns
+    )

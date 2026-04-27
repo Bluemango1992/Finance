@@ -5,6 +5,7 @@ import sys
 
 from finance.config import build_settings
 from finance.db import run_query
+from finance.fundamentals_pipeline import PipelineConfig, run_and_persist_sp500_fundamentals
 from finance.providers import fetch_alphavantage_overview, fetch_yfinance_info
 from finance.scraper.ftse250 import refresh_ftse250_data_safe
 from finance.scraper.nikkei225 import refresh_nikkei225_data_safe
@@ -73,6 +74,61 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="data/nikkei225_components.json",
         help="Path to the root-level JSON file that stores Nikkei 225 components.",
     )
+    parser.add_argument(
+        "--build-sp500-fundamentals",
+        action="store_true",
+        help="Build a structured S&P 500 fundamentals dataset via yfinance.",
+    )
+    parser.add_argument(
+        "--fundamentals-flat-output",
+        default="artifacts/sp500_fundamentals_flat.parquet",
+        help="Flat output path for the S&P 500 fundamentals dataset.",
+    )
+    parser.add_argument(
+        "--fundamentals-long-output",
+        default="artifacts/sp500_fundamentals_long.parquet",
+        help="Long output path for normalized statement history.",
+    )
+    parser.add_argument(
+        "--fundamentals-summary-output",
+        default="artifacts/sp500_fundamentals_summary.json",
+        help="Summary output path for the fundamentals pipeline.",
+    )
+    parser.add_argument(
+        "--fundamentals-history-period",
+        default="5y",
+        help="Price history period for the fundamentals pipeline.",
+    )
+    parser.add_argument(
+        "--fundamentals-lookback-years",
+        type=int,
+        default=4,
+        help="Annual statement periods to normalize into the dataset.",
+    )
+    parser.add_argument(
+        "--fundamentals-retry-attempts",
+        type=int,
+        default=3,
+        help="Retry attempts per ticker during fundamentals ingestion.",
+    )
+    parser.add_argument(
+        "--fundamentals-retry-delay-seconds",
+        type=float,
+        default=1.5,
+        help="Base retry delay per failed ticker request.",
+    )
+    parser.add_argument(
+        "--fundamentals-pause-between-tickers-seconds",
+        type=float,
+        default=0.0,
+        help="Optional pause inserted between ticker requests.",
+    )
+    parser.add_argument(
+        "--fundamentals-max-tickers",
+        type=int,
+        default=None,
+        help="Optional ticker cap for debugging the fundamentals pipeline.",
+    )
     return parser.parse_args(argv)
 
 
@@ -96,6 +152,30 @@ def main() -> None:
             raise SystemExit(1) from exc
 
         print(json.dumps(asdict(summary), indent=2))
+        return
+
+    if args.build_sp500_fundamentals:
+        try:
+            result = run_and_persist_sp500_fundamentals(
+                PipelineConfig(
+                    sp500_path=args.sp500_output,
+                    refresh_sp500=args.refresh_sp500,
+                    output_flat=args.fundamentals_flat_output,
+                    output_long=args.fundamentals_long_output,
+                    output_summary=args.fundamentals_summary_output,
+                    history_period=args.fundamentals_history_period,
+                    lookback_years=args.fundamentals_lookback_years,
+                    retry_attempts=args.fundamentals_retry_attempts,
+                    retry_delay_seconds=args.fundamentals_retry_delay_seconds,
+                    pause_between_tickers_seconds=args.fundamentals_pause_between_tickers_seconds,
+                    max_tickers=args.fundamentals_max_tickers,
+                )
+            )
+        except RuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
+
+        print(json.dumps(result, indent=2))
         return
 
     if args.refresh_sp500:

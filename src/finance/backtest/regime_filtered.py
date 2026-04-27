@@ -94,12 +94,11 @@ def backtest_regime_weighted_long(
     weighted_returns = aligned["monthly_return"] * aligned["weight"]
     baseline_returns = aligned["monthly_return"]
 
-    summary_df = pd.DataFrame(
-        [
-            _summarize_strategy("weighted_by_regime", weighted_returns, aligned["weight"] > 0),
-            _summarize_strategy("always_long", baseline_returns, aligned["weight"] > -1),
-        ]
-    ).set_index("strategy")
+    summary_rows = [
+        _summarize_strategy("weighted_by_regime", weighted_returns, aligned["weight"] > 0),
+        _summarize_strategy("always_long", baseline_returns, aligned["weight"] > -1),
+    ]
+    summary_df = pd.DataFrame(summary_rows).set_index("strategy")
 
     return {
         "summary": summary_df,
